@@ -18,6 +18,8 @@ namespace TextRPG
         private Monster monster = null;
         private Random rand = new Random();
         private bool isEscapeFail = false;
+        int damage;
+        private string monsterName;
 
         public void Process()
         {
@@ -100,14 +102,12 @@ namespace TextRPG
 
         private void ProcessFight()
         {
-            int damage;
             while (true)
             {
                 //도망실패시 몬스터가 선공
                 if(isEscapeFail == true)
                 {
-                    damage = monster.GetAttack();
-                    player.OnDamaged(damage);
+                    MonsterAttack();
                     if (player.IsDead())
                     {
                         Console.WriteLine("죽었습니다!");
@@ -116,8 +116,8 @@ namespace TextRPG
                     }
                     isEscapeFail = false;
                 }
-                damage = player.GetAttack();
-                monster.OnDamaged(damage);
+
+                PlayerAttack();
                 if (monster.IsDead())
                 {
                     Console.WriteLine("승리했습니다!");
@@ -125,15 +125,29 @@ namespace TextRPG
                     break;
                 }
 
-                damage = monster.GetAttack();
-                player.OnDamaged(damage);
+                MonsterAttack();
                 if (player.IsDead())
                 {
                     Console.WriteLine("죽었습니다!");
                     mode = GameMode.Lobby;
                     break;
                 }
+
+
+
             }
+        }
+        void PlayerAttack()
+        {
+            damage = player.GetAttack();
+            monster.OnDamaged(damage);
+            Console.WriteLine($"{monsterName}에게 {damage}의 피해를 입혔습니다.");
+        }
+        void MonsterAttack()
+        {
+            damage = monster.GetAttack();
+            player.OnDamaged(damage);
+            Console.WriteLine($"{monsterName}에게 {damage}의 피해를 입었습니다.");
         }
         private void ProcessEscape()
         {
@@ -146,6 +160,7 @@ namespace TextRPG
             }
             else
             {
+                Console.WriteLine("도망치는데 실패했습니다. 몬스터가 당신에게 달려듭니다.");
                 isEscapeFail = true;
                 ProcessFight();
             }
@@ -157,14 +172,17 @@ namespace TextRPG
             {
                 case 0:
                     monster = new Slime();
+                    monsterName = "슬라임";
                     Console.WriteLine("슬라임이 나타났습니다!");
                     break;
                 case 1:
                     monster = new Orc();
+                    monsterName = "오크";
                     Console.WriteLine("오크가 나타났습니다!");
                     break;
                 case 2:
                     monster = new Skeleton();
+                    monsterName = "스켈레톤";
                     Console.WriteLine("스켈레톤이 나타났습니다!");
                     break;
             }
