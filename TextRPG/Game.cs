@@ -15,6 +15,9 @@ namespace TextRPG
     {
         private GameMode mode = GameMode.Lobby;
         private Player player = null;
+        private Monster monster = null;
+        private Random rand = new Random();
+        private bool isEscapeFail = false;
 
         public void Process()
         {
@@ -27,6 +30,7 @@ namespace TextRPG
                     ProcessTown();
                     break;
                 case GameMode.Field:
+                    ProcessField();
                     break;
             }
         }
@@ -70,6 +74,98 @@ namespace TextRPG
                     break;
                 case "2":
                     mode = GameMode.Lobby;
+                    break;
+            }
+        }
+        private void ProcessField()
+        {
+            Console.WriteLine("필드로 나왔습니다.");
+
+            CreateRandomMonster();
+
+            Console.WriteLine("[1] 싸우기");
+            Console.WriteLine("[2] 마을로 도망가기");
+
+            string input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    ProcessFight();
+                    break;
+                case "2":
+                    ProcessEscape();
+                    break;
+            }
+        }
+
+        private void ProcessFight()
+        {
+            int damage;
+            while (true)
+            {
+                //도망실패시 몬스터가 선공
+                if(isEscapeFail == true)
+                {
+                    damage = monster.GetAttack();
+                    player.OnDamaged(damage);
+                    if (player.IsDead())
+                    {
+                        Console.WriteLine("죽었습니다!");
+                        mode = GameMode.Lobby;
+                        break;
+                    }
+                    isEscapeFail = false;
+                }
+                damage = player.GetAttack();
+                monster.OnDamaged(damage);
+                if (monster.IsDead())
+                {
+                    Console.WriteLine("승리했습니다!");
+                    Console.WriteLine($"남은 체력 : {player.GetHP()}");
+                    break;
+                }
+
+                damage = monster.GetAttack();
+                player.OnDamaged(damage);
+                if (player.IsDead())
+                {
+                    Console.WriteLine("죽었습니다!");
+                    mode = GameMode.Lobby;
+                    break;
+                }
+            }
+        }
+        private void ProcessEscape()
+        {
+            //33%활률로 도망
+            int randValue = rand.Next(0, 100);
+            if(randValue < 33)
+            {
+                Console.WriteLine("무사히 마을로 도망쳤습니다.");
+                mode = GameMode.Town;
+            }
+            else
+            {
+                isEscapeFail = true;
+                ProcessFight();
+            }
+        }
+        private void CreateRandomMonster()
+        {
+            int randValue = rand.Next(0, 3);
+            switch (randValue)
+            {
+                case 0:
+                    monster = new Slime();
+                    Console.WriteLine("슬라임이 나타났습니다!");
+                    break;
+                case 1:
+                    monster = new Orc();
+                    Console.WriteLine("오크가 나타났습니다!");
+                    break;
+                case 2:
+                    monster = new Skeleton();
+                    Console.WriteLine("스켈레톤이 나타났습니다!");
                     break;
             }
         }
