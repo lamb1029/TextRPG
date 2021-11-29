@@ -6,27 +6,20 @@ namespace TextRPG
 {
     enum PlayerType
     {
-        None,
-        Knight,
-        Archer,
-        Mage
+        None = 0,
+        Knight = 1,
+        Archer = 2,
+        Mage = 3
     }
-    class Player
+    class Player : Creature
     {
         protected PlayerType type = PlayerType.None;
-        protected int hp = 0, attack = 0;
-
-        protected Player(PlayerType type)
+        protected Player(PlayerType type) : base(CreatureType.Player)
         {
             this.type = type;
         }
-        public void Setinfo(int hp, int attack)
-        {
-            this.hp = hp;
-            this.attack = attack;
-        }
-        public int GetHP() { return hp; }
-        public int GetAttack() { return attack; }
+
+        public PlayerType GetPlayerType() { return type; }
     }
 
     class Knight : Player
